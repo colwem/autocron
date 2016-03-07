@@ -64,6 +64,38 @@ describe('User', () => {
 
   });
 
+  describe('cronTime', () => {
+    let userId = h.uuidGenerator(),
+        apiKey = h.uuidGenerator(),
+        testUser;
+
+    beforeEach((done) => {
+      return User.create({userId: userId,
+                  apiKey: apiKey})
+      .then((user) => {
+        testUser = user;
+        done();
+      });
+    });
+
+    it('validates minimum', () => {
+      testUser.cronTime = -1;
+      return expect(testUser.save()).to.be.rejected;
+    });
+
+    it('validates maximum', () => {
+      testUser.cronTime = 24;
+      return expect(testUser.save()).to.be.rejected;
+    });
+
+    afterEach((done) => {
+      User.remove({}, () => {
+        done();
+      });
+    });
+
+  });
+
   context('has unique userId', () => {
     let userId = h.uuidGenerator(),
         apiKey = h.uuidGenerator();
