@@ -13,7 +13,7 @@ mockgoose(mongoose);
 let expect = chai.expect;
 
 describe('User routes', () => {
-  describe('#register', () => {
+  describe('POST /users/register', () => {
     it('should create a user', (done) => {
       let userId = h.uuidGenerator();
       let apiKey = h.uuidGenerator();
@@ -33,7 +33,7 @@ describe('User routes', () => {
   });
 
 
-  describe('/users/:id', () => {
+  describe('GET /users/', () => {
     let testSession,
         userId = h.uuidGenerator(),
         apiKey = h.uuidGenerator();
@@ -51,9 +51,8 @@ describe('User routes', () => {
 
       it('should get user page', (done) => {
         testSession
-          .get(`/users/${userId}`)
+          .get('/users/')
           .expect(200)
-          .expect(`${userId}`)
           .end((err, res) => {
             expect(res.text).to.include(userId);
             done()
@@ -64,7 +63,7 @@ describe('User routes', () => {
     context('when not a login session', () =>{
       it('should redirect to /users/login', (done) => {
         request(app)
-          .get(`/users/${userId}`)
+          .get('/users/')
           .expect(302)
           .end((err, res) => {
             if (err) return done(err);
@@ -74,4 +73,47 @@ describe('User routes', () => {
       });
     });
   });
+
+
+  describe('GET /users/edit', () => {
+    let testSession,
+        userId = h.uuidGenerator(),
+        apiKey = h.uuidGenerator();
+
+    context('when in a login session', () => {
+
+      beforeEach((done) => {
+        testSession = session(app)
+        testSession
+          .post('/users/register')
+          .send({userId: userId, apiKey: apiKey})
+          .expect(302)
+          .end(done);
+      });
+
+      it('should get edit page', (done) => {
+        testSession
+          .get('/users/edit')
+          .expect(200)
+          .end((err, res) => {
+            expect(res.text).to.include('form');
+            expect(res.text).to.include('cronTime');
+            done()
+          });
+      });
+    });
+
+    context('when not a login session', () =>{
+      it('should redirect to /users/login', (done) => {
+        request(app)
+          .get('/users/edit')
+          .expect(302)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.header.location).to.include('users/login');
+            done();
+          });
+      });
+    });
+  })
 });

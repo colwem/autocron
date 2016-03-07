@@ -1,13 +1,11 @@
 extends ../layout
 
 block content
-  div 
-    h1 User page
-  div
-    dl.dl-horizontal
-      dt User Id
-      dd= user.userId
-      dt Api Token
-      dd= user.apiKey
-      dt Configured cron time
-      dd= user.dayStart
+  .container
+    include ./show/top-part.jade
+    .row
+      .col-sm-2
+        p.text-right
+          strong Cron Time 
+      .col-sm-6
+        a(href='/users/edit')= user.cronTime

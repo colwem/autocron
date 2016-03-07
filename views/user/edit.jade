@@ -1,0 +1,25 @@
+extends ../layout
+
+block content
+  .container
+    include ./show/top-part.jade
+    form.form-horizontal(
+      role='form',
+      action="/users/edit"
+      method="post")
+      .form-group
+        label.col-sm-2.control-label(for="cronTime") Cron Time
+        .col-sm-6
+          select.form-control(name="cronTime")
+            - for (var i = 0; i < 24; i++ )
+              option(
+                value=i
+                selected=user.cronTime === i ? true : false 
+              )= i
+      .form-group
+        .col-sm-6.col-sm-offset-3
+          button.btn.btn-default(type="submit") Save
+          | &nbsp;
+          a(href='/users/'
+            role="button"
+          ).btn.btn-primary(type="button") Cancel
