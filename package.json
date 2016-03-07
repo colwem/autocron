@@ -30,6 +30,7 @@
     "chai-as-promised": "^5.2.0",
     "istanbul": "^0.4.2",
     "mockgoose": "^5.3.3",
-    "supertest": "^1.2.0"
+    "supertest": "^1.2.0",
+    "supertest-session": "^2.0.1"
   }
 }

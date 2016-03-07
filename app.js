@@ -46,6 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // global template variables setup
 app.use( (req, res, next) =>{
   res.locals.title = "AutoCron";
+  res.locals.user = req.user;
   next();
 });
 

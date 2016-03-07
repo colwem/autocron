@@ -1,20 +1,17 @@
 'use strict';
 
-let express = require('express');
-let passport = require('passport');
-let User = require('../models/user.js');
+let express  = require('express'),
+    passport = require('passport'),
+    User     = require('../models/user.js'),
+    router   = express.Router(),
+    h        = require('../test/helpers');
 
-let router = express.Router();
-
-router.get('/', (req, res, next) => {
-  if(req.user) {
-    return res.redirect('/');
-  }
-  res.redirect('/user/login');
+router.get('/', loggedIn, (req, res, next) => {
+  res.redirect('/');
 });
 
-router.route('/login')
 
+router.route('/login')
   .get((req, res) => {
     res.render('login');
   })
@@ -23,10 +20,11 @@ router.route('/login')
                               {successRedirect: '/',
                                failureRedirect: '/users/login'})); 
 
-router.route('/register')
 
+router.route('/register')
   .get((req, res) => {
-    res.render('register', {});
+    res.render('register', {userId: h.uuidGenerator(),
+                  apiKey: h.uuidGenerator()});
   })
 
   .post((req, res) => {
@@ -46,13 +44,24 @@ router.route('/register')
     })
   });
 
+
 router.get('/logout', (req, res) => {
   req.logout();
   res.redirect('/');
 });
 
-router.get('/:id', (req, res) => {
+
+router.get('/:id', loggedIn, (req, res) => {
   res.render('user/show');
 })
+
+function loggedIn(req, res, next) {
+  console.log("in loggedIn");
+  if (req.user) {
+    next();
+  } else {
+    res.redirect('/users/login');
+  }
+}
 
 module.exports = router;
