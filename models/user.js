@@ -1,11 +1,13 @@
-var mongoose = require('mongoose'),
+'use strict';
+
+let mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     ObjectId = Schema.ObjectId;
 
 mongoose.Promise = global.Promise;
 
-var matcher = /\S{8}-\S{4}-\S{4}-\S{12}/;
-var userSchema = new Schema({
+let matcher = /\S{8}-\S{4}-\S{4}-\S{12}/;
+let userSchema = new Schema({
 
   userId: { 
     type: String, 
@@ -30,14 +32,14 @@ var userSchema = new Schema({
   }
 });
 
-userSchema.methods.validApiKey = function(apiKey){
+userSchema.methods.validApiKey = (apiKey) =>{
   return this.apiKey === apiKey;
 }
 
-userSchema.statics.register = function(newUser) {
-  // return this.findOne(newUser, function(err, user) {
+userSchema.statics.register = (newUser) => {
+  // return this.findOne(newUser, (err, user) => {
     // if (user) {
-      // return new Promise(function(a,b) { b("user exists!") }); 
+      // return new Promise((a,b) => { b("user exists!") }); 
     // }
   // });
     return newUser.save();

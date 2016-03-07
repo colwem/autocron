@@ -1,42 +1,44 @@
-var chai = require('chai');
-var chaiAsPromised = require('chai-as-promised');
-var mongoose = require('mongoose');
-var User = require("../../models/user.js");
-var h = require("../helpers");
+'use strict';
+
+let chai = require('chai');
+let chaiAsPromised = require('chai-as-promised');
+let mongoose = require('mongoose');
+let User = require("../../models/user.js");
+let h = require("../helpers");
 
 chai.use(chaiAsPromised);
-var expect = chai.expect;
+let expect = chai.expect;
 
-var db;
+let db;
 
 
-describe('User', function() {
+describe('User', () => {
 
-  before(function(done) {
+  before((done) => {
     db = mongoose.connect('mongodb://localhost/autocron_test');
     done();
   });
 
-  after(function(done) {
+  after((done) => {
     mongoose.connection.close();
     done();
   });
-  
-  describe('#save, #create', function() {
 
-    it('can be created', function() {
+  describe('#save, #create', () => {
+
+    it('can be created', () => {
       return expect(User.create({userId: h.uuidGenerator(),
                                 apiKey: h.uuidGenerator()}))
         .to.be.fulfilled;
     });
 
-    it('does not allow duplicates', function(){
-      var userId = h.uuidGenerator(),
+    it('does not allow duplicates', () =>{
+      let userId = h.uuidGenerator(),
           apiKey = h.uuidGenerator();
       return User.create({userId: userId,
                   apiKey: apiKey})
-      .then(function(user) {
-        return 
+      .then((user) => {
+        return
           expect(
             User.create({userId: userId,
                         apiKey: apiKey})
@@ -44,16 +46,16 @@ describe('User', function() {
       });
     });
 
-    it('validates userId format', function() {
-      return 
+    it('validates userId format', () => {
+      return
         expect(
           User.create({userId: h.badUuidGenerator(),
                       apiKey: h.uuidGenerator()})
         ).to.be.rejected;
     });
 
-    it('validates apiKey format', function(){
-      return 
+    it('validates apiKey format', () =>{
+      return
         expect(
           User.create({userId: h.uuidGenerator(),
                       apiKey: h.badUuidGenerator()})
@@ -62,30 +64,30 @@ describe('User', function() {
 
   });
 
-  context('has unique userId', function() {
-    var userId = h.uuidGenerator(), 
-        apiKey = h.uuidGenerator(); 
-    beforeEach(function(done) {
-      var user = new User({
+  context('has unique userId', () => {
+    let userId = h.uuidGenerator(),
+        apiKey = h.uuidGenerator();
+    beforeEach((done) => {
+      let user = new User({
         userId: userId,
         apiKey: apiKey
       });
 
-      user.save(function(error) {
+      user.save((error) => {
         if (error) console.log('error' + error.message);
         done();
       });
     });
 
-    it('find a user by userId', function(done) {
-      User.findOne({ userId: userId }, function(err, user) {
+    it('find a user by userId', (done) => {
+      User.findOne({ userId: userId }, (err, user) => {
         expect(user.userId).to.be.equal(userId);
         done();
       });
     });
 
-    afterEach(function(done) {
-      User.remove({}, function() {
+    afterEach((done) => {
+      User.remove({}, () => {
         done();
       });
     });

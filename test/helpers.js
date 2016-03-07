@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
 class Helpers {
   static uuidGenerator() {
-    let s = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
+    let s = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
     let a = s
         .replace(/[xy]/g, (c) => {
           let r, v;
@@ -14,7 +14,7 @@ class Helpers {
   };
 
   static badUuidGenerator() {
-    return "blah";
+    return 'blah';
   }
 }
 

@@ -1,12 +1,12 @@
-"use strict";
+'use strict';
 
-var express = require('express');
-var passport = require('passport');
-var User = require('../models/user.js');
+let express = require('express');
+let passport = require('passport');
+let User = require('../models/user.js');
 
-var router = express.Router();
-/* GET users listing. */
-router.get('/', function(req, res, next) {
+let router = express.Router();
+
+router.get('/', (req, res, next) => {
   if(req.user) {
     return res.redirect('/');
   }
@@ -15,7 +15,7 @@ router.get('/', function(req, res, next) {
 
 router.route('/login')
 
-  .get(function(req, res){
+  .get((req, res) => {
     res.render('login');
   })
 
@@ -25,33 +25,33 @@ router.route('/login')
 
 router.route('/register')
 
-  .get(function(req, res){
+  .get((req, res) => {
     res.render('register', {});
   })
 
-  .post(function(req, res){
+  .post((req, res) => {
     let user = new User({userId: req.body.userId,
               apiKey: req.body.apiKey });
     user.save()
-    .then(function(user) {
-      req.login(user, function(err){
+    .then((user) => {
+      req.login(user, (err) => {
         if (err) console.error(err);
         res.redirect('/');
         // res.redirect('/users/' + user.id);
       });
     })
-    .catch(function(err) {
+    .catch((err) => {
       req.flash("error", "User-Id already registered, try logging in");
       return res.redirect('register'); 
     })
   });
 
-router.get('/logout', function(req, res){
+router.get('/logout', (req, res) => {
   req.logout();
   res.redirect('/');
 });
 
-router.get('/:id', function(req, res){
+router.get('/:id', (req, res) => {
   res.render('user/show');
 })
 
