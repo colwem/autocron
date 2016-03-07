@@ -55,12 +55,26 @@ router.get('/logout', (req, res) => {
 });
 
 
-router.get('/edit', loggedIn, (req, res) => {
-  res.render('user/edit'); 
-})
+// [GET,POST]/users/edit
+router.route('/edit')
+  .get(loggedIn, (req, res) => {
+    res.render('user/edit'); 
+  })
+
+  .post(loggedIn, (req, res) => {
+    req.user.cronTime = req.body.cronTime;
+    req.user.save()
+    .then((user) => {
+      res.redirect('/users/');
+    })
+    .catch((err) => {
+      req.flash("error", err)
+      res.redirect('/user/edit')
+    });
+  })
+
 
 function loggedIn(req, res, next) {
-  console.log("in loggedIn");
   if (req.user) {
     next();
   } else {

@@ -115,5 +115,55 @@ describe('User routes', () => {
           });
       });
     });
+  });
+
+  describe('POST /users/edit', () => {
+    let testSession,
+        userId = h.uuidGenerator(),
+        apiKey = h.uuidGenerator();
+
+    context('when in a login session', () => {
+
+      beforeEach((done) => {
+        testSession = session(app)
+        testSession
+          .post('/users/register')
+          .send({userId: userId, apiKey: apiKey})
+          .expect(302)
+          .end(done);
+      });
+
+      it('should save cronTime', (done) => {
+        let cronTime = 4;
+        testSession
+          .post('/users/edit')
+          .send({cronTime: cronTime})
+          .expect(302)
+          .end((err, res) => {
+            testSession
+              .get(res.header.location)
+              .expect(200)
+              .end((err, res) => {
+                expect(res.text).to.include(`${cronTime}`);
+                done();
+              });
+          });
+      });
+    });
+
+    context('when not a login session', () =>{
+      it('should redirect to /users/login', (done) => {
+        let cronTime = 4;
+        request(app)
+          .post('/users/edit')
+          .send({cronTime: cronTime})
+          .expect(302)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.header.location).to.include('users/login');
+            done();
+          });
+      });
+    });
   })
 });
