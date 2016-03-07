@@ -4,14 +4,30 @@ var mongoose = require('mongoose'),
 
 mongoose.Promise = global.Promise;
 
+var matcher = /\S{8}-\S{4}-\S{4}-\S{12}/;
 var userSchema = new Schema({
-  userId: { type: String, 
-            unique: true, 
-            required: true, 
-            index: true, 
-            dropDups: true},
-  apiKey: {type: String, required: true},
-  cronTime: {type: Date}
+
+  userId: { 
+    type: String, 
+    unique: true, 
+    required: true, 
+    index: true, 
+    dropDups: true,
+    match: matcher
+  },
+
+  apiKey: {
+    type: String, 
+    required: true,
+    match: matcher
+  },
+
+  dayStart: {
+    type:Number, 
+    default: 0,
+    min: 0,
+    max: 23
+  }
 });
 
 userSchema.methods.validApiKey = function(apiKey){
@@ -26,4 +42,5 @@ userSchema.statics.register = function(newUser) {
   // });
     return newUser.save();
 }
+
 module.exports = mongoose.model('User', userSchema);
