@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  div
+    h1 Re-cron your cron
+  div
+    if (!user)
+      br
+      a(href="/users/login") Login
+      br
+      a(href="/users/register") Register your account
+      br
+    if (user)
+      br
+      p You are currently logged in as #{user.userId}
+      a(href="/users/logout") Logout

@@ -1,0 +1,20 @@
+nav.navbar.navbar-default.navbar-static-top.navbar-inverse
+  .container-fluid
+    .navbar-header
+      a.navbar-brand(href="/") AutoCron
+    .collapse.navbar-collapse
+      ul.nav.navbar-nav
+        if(! user)
+          li
+            a(href="/users/register") Register
+        else
+      ul.nav.navbar-nav.navbar-right 
+        if(!user)
+          li
+            a(href="/users/login") Log In
+        else
+          li
+            p.navbar-text Logged in as: 
+              a.navbar-link(href="/users/")= user.userId 
+          li
+            a(href="/users/logout") Logout
