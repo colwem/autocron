@@ -1,5 +1,7 @@
 "use strict";
 
+process.env.NODE_ENV = 'test';
+
 let chai      = require('chai'),
     session   = require('supertest-session'),
     request   = require('supertest'),
@@ -14,9 +16,22 @@ let expect = chai.expect;
 
 describe('User routes', () => {
   describe('POST /users/register', () => {
+
+    // beforeEach((done) => {
+      // mockgoose.reset(() => {
+        // done();
+      // });
+    // });
+
+    afterEach((done) => {
+      mockgoose.reset(() => {
+        done();
+      });
+    });
+
     it('should create a user', (done) => {
-      let userId = h.uuidGenerator();
-      let apiKey = h.uuidGenerator();
+      let userId = h.testUserId;
+      let apiKey = h.testApiKey;
 
       request(app)
         .post('/users/register')
@@ -35,8 +50,8 @@ describe('User routes', () => {
 
   describe('GET /users/', () => {
     let testSession,
-        userId = h.uuidGenerator(),
-        apiKey = h.uuidGenerator();
+        userId = h.testUserId,
+        apiKey = h.testApiKey;
 
     context('when in a login session', () => {
 
@@ -49,6 +64,7 @@ describe('User routes', () => {
           .end(done);
       });
 
+
       it('should get user page', (done) => {
         testSession
           .get('/users/')
@@ -58,6 +74,13 @@ describe('User routes', () => {
             done()
           });
       });
+
+      afterEach((done) => {
+        mockgoose.reset(() => {
+          done();
+        });
+      });
+
     });
 
     context('when not a login session', () =>{
@@ -77,8 +100,8 @@ describe('User routes', () => {
 
   describe('GET /users/edit', () => {
     let testSession,
-        userId = h.uuidGenerator(),
-        apiKey = h.uuidGenerator();
+        userId = h.testUserId,
+        apiKey = h.testApiKey;
 
     context('when in a login session', () => {
 
@@ -101,6 +124,13 @@ describe('User routes', () => {
             done()
           });
       });
+
+      afterEach((done) => {
+        mockgoose.reset(() => {
+          done();
+        });
+      });
+
     });
 
     context('when not a login session', () =>{
@@ -119,8 +149,8 @@ describe('User routes', () => {
 
   describe('POST /users/edit', () => {
     let testSession,
-        userId = h.uuidGenerator(),
-        apiKey = h.uuidGenerator();
+        userId = h.testUserId,
+        apiKey = h.testApiKey;
 
     context('when in a login session', () => {
 
@@ -149,6 +179,13 @@ describe('User routes', () => {
               });
           });
       });
+
+      afterEach((done) => {
+        mockgoose.reset(() => {
+          done();
+        });
+      });
+
     });
 
     context('when not a login session', () =>{
@@ -165,5 +202,12 @@ describe('User routes', () => {
           });
       });
     });
-  })
+  });
+
+  after((done) => {
+    mockgoose.reset(() => {
+      done();
+    });
+  });
+
 });

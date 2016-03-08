@@ -1,7 +1,14 @@
 'use strict';
 
+
 class Helpers {
-  static uuidGenerator() {
+
+  constructor() {
+    this.testUserId = 'bfea558d-aa49-41e7-8b3e-a3c717907816';
+    this.testApiKey = '7baa1947-7c06-4f0a-8883-863148cbf34b';
+  }
+
+  uuidGenerator() {
     let s = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
     let a = s
         .replace(/[xy]/g, (c) => {
@@ -13,10 +20,11 @@ class Helpers {
     return a;
   };
 
-  static badUuidGenerator() {
+  badUuidGenerator() {
     return 'blah';
   }
+
 }
 
-module.exports = Helpers;
+module.exports = new Helpers();
 

@@ -36,7 +36,7 @@ let userSchema = new Schema({
 userSchema.statics.register = function(options) {
   let user = new this(options);
 
-  return api({
+  return api.connect({
     userId: user.userId,
     apiKey: user.apiKey
   })

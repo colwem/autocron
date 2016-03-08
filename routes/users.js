@@ -4,18 +4,20 @@ let express  = require('express'),
     passport = require('passport'),
     User     = require('../models/user.js'),
     router   = express.Router(),
-    h        = require('../test/helpers');
+    h        = require('../test/helpers'),
+    api      = require('../lib/api');
 
 
-router.get('/', loggedIn, (req, res) => {
+router.get('/', loggedIn, api.attachUser(), (req, res) => {
   res.render('user/show');
-})
+});
 
 
 // /users/login
 router.route('/login')
   .get((req, res) => {
-    res.render('login');
+    res.render('login', {userId: 'bfea558d-aa49-41e7-8b3e-a3c717907816',
+                        apiKey: '7baa1947-7c06-4f0a-8883-863148cbf34b'});
   })
 
   .post(passport.authenticate('local', 
