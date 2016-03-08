@@ -2,7 +2,8 @@
 
 let mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    ObjectId = Schema.ObjectId;
+    ObjectId = Schema.ObjectId,
+    api = require('../lib/api');
 
 mongoose.Promise = global.Promise;
 
@@ -32,17 +33,29 @@ let userSchema = new Schema({
   }
 });
 
-userSchema.methods.validApiKey = (apiKey) =>{
-  return this.apiKey === apiKey;
+userSchema.statics.register = function(options) {
+  let user = new this(options);
+
+  return api({
+    userId: user.userId,
+    apiKey: user.apiKey
+  })
+  .then((client) => {
+    let q = client.user.user_GET()
+    .then((habiticaUser) => {
+      let dayStart = habiticaUser.obj.preferences.dayStart;
+      user.cronTime = (dayStart + 1) % 24;
+      return user.save();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+    return q;
+  });
 }
 
-userSchema.statics.register = (newUser) => {
-  // return this.findOne(newUser, (err, user) => {
-    // if (user) {
-      // return new Promise((a,b) => { b("user exists!") });
-    // }
-  // });
-    return newUser.save();
+userSchema.methods.validApiKey = (apiKey) => {
+  return this.apiKey === apiKey;
 }
 
 module.exports = mongoose.model('User', userSchema);

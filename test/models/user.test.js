@@ -11,7 +11,6 @@ let expect = chai.expect;
 
 let db;
 
-
 describe('User', () => {
 
   before((done) => {
@@ -24,6 +23,34 @@ describe('User', () => {
     done();
   });
 
+
+  describe('#register', () => {
+    let appUserId = 'bfea558d-aa49-41e7-8b3e-a3c717907816',
+        appApiKey = '7baa1947-7c06-4f0a-8883-863148cbf34b';
+
+    context('when userId and appKey are found', () => {
+      afterEach((done) => {
+        User.remove({}, () => {
+          done();
+        });
+      });
+
+      it('creates user', function() {
+          return expect(User.register({userId: appUserId, apiKey: appApiKey}))
+            .to.eventually.be.an.instanceof(User);
+      });
+
+      it('sets cronTime to 1 more than dayStart time', (done) => {
+        User.register({userId: appUserId,
+                                apiKey:  appApiKey})
+        .then((user) => {
+          debugger;
+          expect(user.cronTime).to.eql(1);
+          done();
+        })
+      })
+    });
+  });
   describe('#save, #create', () => {
 
     it('can be created', () => {
@@ -99,6 +126,7 @@ describe('User', () => {
   context('has unique userId', () => {
     let userId = h.uuidGenerator(),
         apiKey = h.uuidGenerator();
+
     beforeEach((done) => {
       let user = new User({
         userId: userId,
@@ -117,11 +145,6 @@ describe('User', () => {
         done();
       });
     });
-
-    afterEach((done) => {
-      User.remove({}, () => {
-        done();
-      });
-    });
   });
+
 });
