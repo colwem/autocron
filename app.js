@@ -14,20 +14,21 @@ let mongoose = require('mongoose');
 let flash = require('connect-flash');
 let app = express();
 
+
+let dbName = 'autocron',
+    dbUrl  = 'mongodb://localhost/'
+
 switch(app.get('env')) {
   case 'test':
-    mongoose.connect('mongodb://localhost/autocron_test');
-    break;
-  case 'development':
-    mongoose.connect('mongodb://localhost/autocron');
+    dbName = 'autocron_test';
     break;
   case 'production':
     app.use(require('compression')());
-    mongoose.connect(process.env.OPENSHIFT_MONGODB_DB_URL);
+    dbUrl = process.env.OPENSHIFT_MONGODB_DB_URL
     break;
-  default:
-    mongoose.connect('mongodb://localhost/autocron');
 }
+
+mongoose.connect(dbUrl + dbName);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
