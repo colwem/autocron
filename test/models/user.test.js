@@ -4,7 +4,6 @@ let chai = require('chai');
 let chaiAsPromised = require('chai-as-promised');
 let mongoose = require('mongoose');
 let mockgoose = require('mockgoose');
-mockgoose(mongoose);
 
 let User = require("../../models/user.js");
 let h = require("../helpers");
@@ -20,7 +19,7 @@ afterEach(function(done) {
 });
 
 before((done) => {
-  db = mongoose.connect('mongodb://localhost/autocron_test');
+  // db = mongoose.connect('mongodb://localhost/autocron_test');
   done();
 });
 
@@ -132,7 +131,7 @@ describe('User', () => {
       });
 
       user.save((error) => {
-        if (error) console.log('error' + error.message);
+        expect(error).to.be.null;
         done();
       });
     });
@@ -144,5 +143,4 @@ describe('User', () => {
       });
     });
   });
-
 });

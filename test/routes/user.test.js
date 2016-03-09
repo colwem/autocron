@@ -11,7 +11,6 @@ let chai      = require('chai'),
     app       = require('../../app'),
     h         = require('../helpers');
 
-mockgoose(mongoose);
 let expect = chai.expect;
 
 let userId = h.testUserId,

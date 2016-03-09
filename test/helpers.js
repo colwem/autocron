@@ -1,5 +1,9 @@
 'use strict';
 
+// let mongoose = require('mongoose'),
+    // mockgoose = require('mockgoose');
+
+// mockgoose(mongoose);
 
 class Helpers {
 

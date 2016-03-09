@@ -26,9 +26,9 @@ a.brand:hover {
   font-weight: 900;
   text-decoration: none;
 }
-.row.space {
+.row.seperator {
   margin-bottom: 1em;
 }
-.row.space .space {
+.row.seperator div {
   border-bottom: 1px dotted #dadada;
 }

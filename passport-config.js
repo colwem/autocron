@@ -2,7 +2,8 @@
 
 let passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy
-  , User = require('./models/user.js');
+  , User = require('./models/user.js')
+  , mongoose = require('mongoose');
 
 passport.use(new LocalStrategy({
     usernameField: 'userId',
@@ -22,10 +23,9 @@ passport.use(new LocalStrategy({
       }
       return done(null, user);
     })
-    // .catch((err) => {
-      // console.log(32);
-      // return done(err);
-    // });
+    .catch((err) => {
+      return done(err);
+    });
   }
 ));
 

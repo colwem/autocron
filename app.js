@@ -12,15 +12,22 @@ let users = require('./routes/users');
 let passport = require('./passport-config.js');
 let mongoose = require('mongoose');
 let flash = require('connect-flash');
-
 let app = express();
 
-if( app.get('env') === 'test' ) {
-  mongoose.connect('mongodb://localhost/autocron_test');
-} else {
-  mongoose.connect('mongodb://localhost/autocron');
+switch(app.get('env')) {
+  case 'test':
+    mongoose.connect('mongodb://localhost/autocron_test');
+    break;
+  case 'development':
+    mongoose.connect('mongodb://localhost/autocron');
+    break;
+  case 'production':
+    app.use(require('compression')());
+    mongoose.connect(process.env.OPENSHIFT_MONGODB_DB_URL);
+    break;
+  default:
+    mongoose.connect('mongodb://localhost/autocron');
 }
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
