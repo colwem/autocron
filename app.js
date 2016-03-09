@@ -15,15 +15,19 @@ let flash = require('connect-flash');
 
 let app = express();
 
+if( app.get('env') === 'test' ) {
+  mongoose.connect('mongodb://localhost/autocron_test');
+} else {
+  mongoose.connect('mongodb://localhost/autocron');
+}
 
-mongoose.connect('mongodb://localhost/autocron');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 if( process.env.NODE_ENV !== 'test' ) {
   app.use(logger('dev'));
 }
@@ -32,7 +36,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // authentication and session setup
-app.use(session({resave: false, saveUninitialized: false, secret: 'blah'}));
+let sess = {
+  resave: false,
+  saveUninitialized: false,
+  secret: 'blah',
+  cookie: {}
+}
+if( app.get('env') === 'production' ) {
+  sess.cookie.secure = true;
+  sess.cookie.maxAge = 2592000;
+}
+app.use(session(sess));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -44,7 +58,15 @@ app.use((req, res, next) =>{
 });
 
 // static stuff setup
-app.use(require('stylus').middleware(path.join(__dirname, 'public')));
+let bootstrap = require('bootstrap-styl'),
+    stylus = require('stylus');
+
+app.use(stylus
+  .middleware(path.join(__dirname, 'public'),
+    {compile: (str) => {
+      return stylus(str)
+        .use(bootstrap());
+    }}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // global template variables setup

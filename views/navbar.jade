@@ -1,10 +1,15 @@
 nav.navbar.navbar-default.navbar-static-top.navbar-inverse
   .container-fluid
     .navbar-header
-      a.navbar-brand(href="/") AutoCron
+      a.pull-left.navbar-link.brand(href="/") 
+        img(
+          alt="AutoCron" 
+          src="/images/logos/AutoCronLogo.svg" 
+          width="50px")
+        | AutoCron
     .collapse.navbar-collapse
       ul.nav.navbar-nav
-        if(! user)
+        if(!user)
           li
             a(href="/users/register") Register
         else

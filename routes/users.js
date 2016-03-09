@@ -20,9 +20,11 @@ router.route('/login')
                         apiKey: '7baa1947-7c06-4f0a-8883-863148cbf34b'});
   })
 
-  .post(passport.authenticate('local', 
+  .post(passport.authenticate('local',
                               {successRedirect: '/users/',
-                               failureRedirect: '/users/login'})); 
+                               failureRedirect: '/users/login',
+                               failureFlash: {type: 'danger'},
+                               successFlash: 'Welcome!'}));
 
 
 // /users/register
@@ -33,19 +35,19 @@ router.route('/register')
   })
 
   .post((req, res) => {
-    let user = new User({userId: req.body.userId,
-              apiKey: req.body.apiKey });
-    user.save()
+    User.register({userId: req.body.userId,
+                  apiKey: req.body.apiKey })
     .then((user) => {
+      req.flash('success', 'Successfully registered')
       req.login(user, (err) => {
-        if (err) console.error(err);
+        if (err) req.flash('danger', JSON.stringify(err, null, 2))
         res.redirect('/users/');
-        // res.redirect('/users/' + user.id);
       });
     })
     .catch((err) => {
-      req.flash("error", "User-Id already registered, try logging in");
-      return res.redirect('register'); 
+      if( typeof err === "object" ) err = JSON.stringify(err, null, 2);
+      req.flash("danger", err);
+      return res.redirect('register');
     })
   });
 
@@ -60,17 +62,18 @@ router.get('/logout', (req, res) => {
 // [GET,POST]/users/edit
 router.route('/edit')
   .get(loggedIn, (req, res) => {
-    res.render('user/edit'); 
+    res.render('user/edit');
   })
 
   .post(loggedIn, (req, res) => {
     req.user.cronTime = req.body.cronTime;
     req.user.save()
     .then((user) => {
+      req.flash("success", "Edit successful")
       res.redirect('/users/');
     })
     .catch((err) => {
-      req.flash("error", err)
+      req.flash("danger", err)
       res.redirect('/user/edit')
     });
   })
@@ -80,6 +83,7 @@ function loggedIn(req, res, next) {
   if (req.user) {
     next();
   } else {
+    req.flash('warning', 'You need to be logged in to do that')
     res.redirect('/users/login');
   }
 }

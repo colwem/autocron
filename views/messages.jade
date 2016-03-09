@@ -1,0 +1,10 @@
+.messages
+  each type in Object.keys(messages)
+    each message in messages[type]
+      .alert.alert-dismissible(class="alert-#{type}")
+        button.close(type="button", data-dismiss="alert", aria-label="Close")
+          span(aria-hidden="true") &times;
+        if( type === 'danger' )
+          = message
+        else
+          = message

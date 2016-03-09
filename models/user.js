@@ -41,20 +41,25 @@ userSchema.statics.register = function(options) {
     apiKey: user.apiKey
   })
   .then((client) => {
-    let q = client.user.user_GET()
-    .then((habiticaUser) => {
-      let dayStart = habiticaUser.obj.preferences.dayStart;
-      user.cronTime = (dayStart + 1) % 24;
-      return user.save();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-    return q;
+    return client.user.user_GET()
+  })
+  .catch((err) => {
+    if( err.obj.err === "No user found." ) {
+      return Promise.reject("Could not find a Habitica user that "
+                          + "matches that User Id and Api Token");
+    }
+    else {
+      return Promise.reject(err);
+    }
+  })
+  .then((habiticaUser) => {
+    let dayStart = habiticaUser.obj.preferences.dayStart;
+    user.cronTime = (dayStart + 1) % 24;
+    return user.save();
   });
 }
 
-userSchema.methods.validApiKey = (apiKey) => {
+userSchema.methods.validApiKey = function(apiKey) {
   return this.apiKey === apiKey;
 }
 
