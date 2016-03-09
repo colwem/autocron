@@ -1,16 +1,40 @@
 extends ../layout
 
+mixin row(name, value)
+  .row
+    .col-sm-3
+      p.text-right
+        strong= name 
+    .col-sm-9
+      p= value
+  .row.space
+    if block
+      .col-sm-9.col-sm-offset-3.space
+        p.text-muted
+          block
+
+
 block content
-  .container
-    include ./show/top-part.jade
+  .container-fluid
     .row
-      .col-sm-2
-        p.text-right
-          strong Cron Time 
-        p
-          small 
-            | This is the time at which your cron will be triggered. Your cron
-            | is when everything resets for the day, you do damage to the boss,
-            | and you suffere damage from missed dailies
-      .col-sm-6
-        a(href='/users/edit')= user.cronTime
+      .col-sm-offset-3.col-sm-6
+        h1 User page
+    +row('User Id', user.userId)
+      | This id identifies your account.  It is public.  You can find it
+      | on the settings api page
+    +row('Api Token', user.apiKey)
+      | This is your private api key.  Keep it secret.  It's used to 
+      | authenticate your account.  If someone steals it they can 
+      | impersonate you.  You can find it on the setings api page.
+    +row('Cron Time', user.cronTime)
+      | This is the time at which your cron will be triggered. Your cron
+      | is when everything resets for the day, you do damage to the boss,
+      | and you suffere damage from missed dailies
+    +row('Activated', user.activated)
+      | When activated this app will send an api request into Habitica
+      | every day at the configured cron time.
+    +row('Day Start', apiUser.preferences.dayStart)
+      | This is the day start time you have configured in Habitica.
+      | Your cron time must be greater than this.  This setting is 
+      | configured in your settings at Habitica.
+    +row('Allow party leader to disable', user.leaderDisable)
