@@ -21,7 +21,10 @@ let express      = require('express'),
 debug(process.env.NODE_ENV);
 if(app.get('env') === 'production') app.use(require('compression')());
 
-mongoose.connect(config.get('database.url') + config.get('database.name'));
+let uri = config.get('database.url') + config.get('database.name');
+debug(uri);
+console.log(uri);
+mongoose.connect(uri);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
