@@ -36,7 +36,7 @@ block content
     +row('Activated', user.activated)
       | When activated this app will send an api request into Habitica
       | every day at the configured cron time.
-    +row('Day Start', apiUser.preferences.dayStart)
+    +row('Day Start', apiUser ? apiUser.preferences.dayStart : "Api error")
       | This is the day start time you have configured in Habitica.
       | Your cron time must be greater than this.  This setting is 
       | configured in your settings at Habitica.

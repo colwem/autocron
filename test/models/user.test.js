@@ -1,13 +1,14 @@
 'use strict';
 
-let chai = require('chai');
-let chaiAsPromised = require('chai-as-promised');
-let mongoose = require('mongoose');
-let mockgoose = require('mockgoose');
+let chai             = require('chai'),
+    chaiAsPromised   = require('chai-as-promised'),
+    mongoose         = require('mongoose'),
+    mockgoose        = require('mockgoose'),
+    config           = require('config');
+mockgoose(mongoose);
 
-let User = require("../../models/user.js");
-let h = require("../helpers");
-
+let User             = require("../../models/user.js"),
+    h                = require("../helpers");
 
 chai.use(chaiAsPromised);
 let expect = chai.expect;
@@ -19,21 +20,21 @@ afterEach(function(done) {
 });
 
 before((done) => {
-  // db = mongoose.connect('mongodb://localhost/autocron_test');
+  db = mongoose.connect(config.get('database.url') + config.get('database.name'));
   done();
 });
 
-describe('User', () => {
+describe('User', function() {
 
-  describe('#register', () => {
+  describe('#register', function() {
     let appUserId = 'bfea558d-aa49-41e7-8b3e-a3c717907816',
         appApiKey = '7baa1947-7c06-4f0a-8883-863148cbf34b';
 
-    context('when userId and appKey are found', () => {
-
+    context('when userId and appKey are found', function() {
+      // this.timeout(5000);
       it('creates user', function() {
-          return expect(User.register({userId: appUserId, apiKey: appApiKey}))
-            .to.eventually.be.an.instanceof(User);
+        return expect(User.register({userId: appUserId, apiKey: appApiKey}))
+          .to.eventually.be.an.instanceof(User);
       });
 
       it('sets cronTime to 1 more than dayStart time', function(done) {

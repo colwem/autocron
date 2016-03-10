@@ -1,34 +1,27 @@
 'use strict';
 
-let express = require('express');
-let path = require('path');
-let favicon = require('serve-favicon');
-let logger = require('morgan');
-let cookieParser = require('cookie-parser');
-let bodyParser = require('body-parser');
-let session = require('express-session');
-let routes = require('./routes/index');
-let users = require('./routes/users');
-let passport = require('./passport-config.js');
-let mongoose = require('mongoose');
-let flash = require('connect-flash');
-let app = express();
+let express      = require('express'),
+    path         = require('path'),
+    favicon      = require('serve-favicon'),
+    logger       = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser   = require('body-parser'),
+    session      = require('express-session'),
+    routes       = require('./routes/index'),
+    users        = require('./routes/users'),
+    passport     = require('./passport-config.js'),
+    mongoose     = require('mongoose'),
+    flash        = require('connect-flash'),
+    app          = express(),
+    whats        = require('semantic-time-converter.js').starter(),
+    MongoDBStore = require('connect-mongodb-session')(session),
+    config       = require('config'),
+    debug        = require('debug')('autocron:app');
 
+debug(process.env.NODE_ENV);
+if(app.get('env') === 'production') app.use(require('compression')());
 
-let dbName = 'autocron',
-    dbUrl  = 'mongodb://localhost/'
-
-switch(app.get('env')) {
-  case 'test':
-    dbName = 'autocron_test';
-    break;
-  case 'production':
-    app.use(require('compression')());
-    dbUrl = process.env.OPENSHIFT_MONGODB_DB_URL
-    break;
-}
-
-mongoose.connect(dbUrl + dbName);
+mongoose.connect(config.get('database.url') + config.get('database.name'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -43,16 +36,21 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// authentication and session setup
 let sess = {
   resave: false,
   saveUninitialized: false,
   secret: 'blah',
   cookie: {}
 }
+
+// authentication and session setup
 if( app.get('env') === 'production' ) {
-  sess.cookie.secure = true;
-  sess.cookie.maxAge = 2592000;
+  // sess.cookie.secure = true;
+  debug(49);
+  sess.cookie.maxAge = whats(3).weeks.in.milleseconds;
+  sess.store = new MongoDBStore(
+    { uri: config.get('database.url') + 'sessions',
+      collection: 'sessions' });
 }
 app.use(session(sess));
 app.use(passport.initialize());

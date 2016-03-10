@@ -4,6 +4,7 @@ let express  = require('express'),
     passport = require('passport'),
     User     = require('../models/user.js'),
     router   = express.Router(),
+    debug    = require('debug')('autocron:routes/users'),
     h        = require('../test/helpers'),
     api      = require('../lib/api');
 
@@ -35,16 +36,20 @@ router.route('/register')
   })
 
   .post((req, res) => {
+    debug(39);
     User.register({userId: req.body.userId,
                   apiKey: req.body.apiKey })
     .then((user) => {
+      debug(43);
       req.flash('success', 'Successfully registered')
       req.login(user, (err) => {
+        debug(46);
         if (err) req.flash('danger', JSON.stringify(err, null, 2))
         res.redirect('/users/');
       });
     })
     .catch((err) => {
+      debug(52);
       if( typeof err === "object" ) err = JSON.stringify(err, null, 2);
       req.flash("danger", err);
       return res.redirect('register');
