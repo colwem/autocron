@@ -1,4 +1,4 @@
-// @import 'bootstrap'
+
 
 border-radius()
   -webkit-border-radius arguments
@@ -17,7 +17,7 @@ filter()
 body
   font-family: 'Lato', serif
 
-a.navbar-brand, h1 
+a.navbar-brand, h1, .h1 
   font-family: 'Roboto', sans-serif
   font-weight: 900   
 
@@ -27,6 +27,43 @@ h2, h3, h4, h5, h6
 p
   font-family: 'Lato', serif
 
+
+.visible-xs-block, .visible-sm-block 
+  .title
+    margin-top 0.7em
+    margin-bottom 0px
+    line-height 0.4em
+
+  .subtitle
+    margin-top 0px
+    margin-bottom 0px
+
+.visible-xs-block 
+  .center-block
+    width 200px
+  img
+    width 200px
+
+.visible-sm-block 
+  .center-block
+    width 400px
+  img
+    width 200px
+
+.visible-md-block, .visible-lg-block 
+  .center-block
+    width 800px
+
+  img
+    width 300px
+
+  .parent
+    position relative
+
+  .bottom
+    position absolute
+    bottom 10px
+    left 300px
 
 
 a.brand

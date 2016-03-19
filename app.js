@@ -13,7 +13,7 @@ let express      = require('express'),
     mongoose     = require('mongoose'),
     flash        = require('connect-flash'),
     app          = express(),
-    whats        = require('semantic-time-converter.js').starter(),
+    gimme        = require('semantic-time-converter.js').starter(),
     MongoDBStore = require('connect-mongodb-session')(session),
     config       = require('config'),
     debug        = require('debug')('autocron:app');
@@ -23,9 +23,9 @@ if(app.get('env') === 'production') app.use(require('compression')());
 
 let uri = config.get('database.url') + config.get('database.name');
 debug(uri);
-console.log(uri);
 mongoose.connect(uri);
 
+app.locals.pretty = config.get('pretty');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -50,7 +50,9 @@ let sess = {
 if( app.get('env') === 'production' ) {
   // sess.cookie.secure = true;
   debug(49);
-  sess.cookie.maxAge = whats(3).weeks.in.milleseconds;
+  sess.cookie.maxAge = gimme(3).weeks.in.milleseconds;
+}
+if(config.get('session.store') === 'db') {
   sess.store = new MongoDBStore(
     { uri: config.get('database.url') + 'sessions',
       collection: 'sessions' });
@@ -68,14 +70,23 @@ app.use((req, res, next) =>{
 
 // static stuff setup
 let bootstrap = require('bootstrap-styl'),
-    stylus = require('stylus');
+    stylus = require('stylus'),
+    nib = require('nib');
 
+function compile(str, path) {
+
+  return stylus(str)
+    .use(nib())
+    .import('nib');
+}
+
+// path.join(__dirname, 'public'),
 app.use(stylus
-  .middleware(path.join(__dirname, 'public'),
-    {compile: (str) => {
-      return stylus(str)
-        .use(bootstrap());
-    }}));
+  .middleware({
+    src: path.join(__dirname, 'public'),
+    dest: path.join(__dirname, 'public'),
+    force: true,
+    compile: compile }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // global template variables setup
@@ -84,7 +95,8 @@ app.use( (req, res, next) =>{
   res.locals.user = req.user;
   next();
 });
-
+console.log(config.get('api.url'));
+require('./lib/api').configure(config.get('api.url'));
 // routers setup
 app.use('/', routes);
 app.use('/users?', users);
@@ -100,7 +112,7 @@ app.use((req, res, next) => {
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development') {
+if (true || app.get('env') === 'development') {
   app.use((err, req, res, next) => {
     res.status(err.status || 500);
     res.render('error', {

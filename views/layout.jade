@@ -1,3 +1,4 @@
+
 doctype html
 html
   head
@@ -6,11 +7,14 @@ html
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
     include ./navbar.jade
+    include ./page-header.jade
     .container-fluid
       .row
-        .col-md-8.col-sm-8.col-md-offset-2.col-sm-offset-2
+        .col-md-6.col-md-offset-3.col-sm-8.col-sm-offset-2.col-xs-12
           != messages('messages', locals)
           block content
 
   script(src='http://code.jquery.com/jquery.js')
   script(src='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js')
+
+

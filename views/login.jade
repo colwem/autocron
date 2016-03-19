@@ -1,28 +1,44 @@
 extends layout
 
+mixin row(label, name, placeholder, value)
+  .row
+    .col-sm-3
+      p.text-right
+        strong= label
+    .col-sm-9
+      input.form-control(
+          type='text'
+          name=name
+          value=value
+          placeholder=placeholder)
+  .row.with-space
+    if block
+      .col-sm-9.col-sm-offset-1
+        p.text-muted
+          block
+  .row.seperator
+    .col-sm-9.col-sm-offset-2
+      | &nbsp;
+
 block content
-  .container
-    h1 Login
-    p.lead Find your User Id and Api Token from the 
-      a(href="https://habitica.com/#/options/settings/api") Habitica api page.
-    br
+  .container-fluid.content.side-shadow
+    .row
+      .col-sm-offset-3.col-sm-6
     form( 
       role='form'
       action="/users/login"
-      method="post"
-      style='max-width: 300px;')
-      .form-group
-        input.form-control(
-          type='text'
-          name="userId"
-          value=userId
-          placeholder='User-Id')
-      .form-group
-        input.form-control(
-          type='text'
-          name="apiKey"
-          value=apiKey
-          placeholder='Api-Key')
+      method="post")
+      +row('User Id', 'userId', 'User Id', userId)
+        | This id identifies your account.  It is public.  You can find it
+        | on the 
+        a(href="https://habitica.com/#/options/settings/api") 
+          | Habitica api page.
+      +row('Api Token', 'apiKey', 'Api Token', apiKey)
+        | This is your private api key.  Keep it secret.  It's used to 
+        | authenticate your account.  If someone steals it they can 
+        | impersonate you.  You can find it on the 
+        a(href="https://habitica.com/#/options/settings/api") 
+          | Habitica api page.
       button.btn.btn-default(type='submit') Log In
       | &nbsp;
       a(href='/')

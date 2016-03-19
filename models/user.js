@@ -30,31 +30,36 @@ let userSchema = new Schema({
     default: 0,
     min: 0,
     max: 23
+  },
+
+  activated: {
+    type: Boolean,
+    default: true,
+  },
+
+  leaderCanDeactivate: {
+    type: Boolean,
+    default: true
   }
 });
 
 userSchema.statics.register = function(options) {
   let user = new this(options);
-  return api.connect({
+  console.log(38);
+  return api.getUser({
     userId: user.userId,
     apiKey: user.apiKey
   })
-  .then((client) => {
-    return client.user.user_GET()
-  })
-  .catch((err) => {
-    if( err.obj.err === "No user found." ) {
-      return Promise.reject("Could not find a Habitica user that "
-                          + "matches that User Id and Api Token");
-    }
-    else {
-      return Promise.reject(err);
-    }
-  })
   .then((habiticaUser) => {
+    console.log('models/user.js: 54');
     let dayStart = habiticaUser.obj.preferences.dayStart;
     user.cronTime = (dayStart + 1) % 24;
     return user.save();
+  })
+  .catch((err) => {
+    console.log('models/user.js: 60');
+    console.log(err);
+    return Promise.reject(err);
   });
 }
 

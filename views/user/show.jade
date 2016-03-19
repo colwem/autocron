@@ -1,43 +1,80 @@
 extends ../layout
 
-mixin row(name, value)
+
+mixin labelRow(name)
   .row
-    .col-sm-3
-      p.text-right
+    .col-xs-12
+      p
         strong= name 
-    .col-sm-9
-      p= value
+
+mixin valueRow
+  .row
+    .col-xs-11.col-xs-offset-1
+        block
+
+mixin helpRow
   .row.with-space
     if block
-      .col-sm-9.col-sm-offset-3
+      .col-xs-11.col-xs-offset-1
         p.text-muted
           block
   .row.seperator
-    .col-sm-9.col-sm-offset-2
+    .col-xs-12
       | &nbsp;
 
-
 block content
+  - dayStart = apiUser.preferences.dayStart
+  - cronTime = user.cronTime
   .container-fluid.content.side-shadow
-    .row
-      .col-sm-offset-3.col-sm-6
-        h1 User page
-    +row('User Id', user.userId)
+    +labelRow('User Id')
+    +valueRow
+      strong
+        samp= user.userId
+    +helpRow
       | This id identifies your account.  It is public.  You can find it
       | on the settings api page
-    +row('Api Token', user.apiKey)
+
+    +labelRow('Api Token')
+    +valueRow
+      strong
+        samp= user.apiKey
+    +helpRow
       | This is your private api key.  Keep it secret.  It's used to 
       | authenticate your account.  If someone steals it they can 
       | impersonate you.  You can find it on the setings api page.
-    +row('Cron Time', user.cronTime)
-      | This is the time at which your cron will be triggered. Your cron
-      | is when everything resets for the day, you do damage to the boss,
-      | and you suffere damage from missed dailies
-    +row('Activated', user.activated)
-      | When activated this app will send an api request into Habitica
-      | every day at the configured cron time.
-    +row('Day Start', apiUser ? apiUser.preferences.dayStart : "Api error")
-      | This is the day start time you have configured in Habitica.
-      | Your cron time must be greater than this.  This setting is 
-      | configured in your settings at Habitica.
-    +row('Allow party leader to disable', user.leaderDisable)
+
+    - name = 'Day Start'
+    - description = 'This is the day start time you have configured in Habitica.  Your cron time must be greater than this. This setting is configured in your settings at Habitica.'
+    -value = dayStart
+    include ./show/row-basic
+
+    - name = 'Cron Time'
+    - description = 'This is the time at which your cron will be triggered. Your cron is when everything resets for the day, you do damage to the boss, and you suffere damage from missed dailies'
+    include ./show/row-cron-time
+
+    - name = 'Activated'
+    - description = 'When activated this app will send an api request into Habitica every day at the configured cron time.'
+    include ./show/row-activated
+
+    - name = 'Allow party leader to disable'
+    - description = 'This is a curtousy to your party.  If you sign up for this And then stop paying attention you may start damaging your party.  This option allows your leader to turn off your cron.  If you deactivate this option the only other option they have is to get very angry at you and then boot you from the party.'
+    include ./show/row-leader-can-deactivate
+
+  script(src="https://cdn.jsdelivr.net/riot/2.3/riot+compiler.min.js")
+  script(src='/js/cron-time.js', type='riot/tag')
+  script(src='/js/activated.js', type='riot/tag')
+  script(src='/js/leader-can-deactivate.js', type='riot/tag')
+
+  script.
+    riot.mount('cron-time', {
+      cronTime: #{cronTime},
+      dayStart: #{dayStart}
+    });
+
+    riot.mount('activated', {
+      activated: #{user.activated}
+    });
+
+    riot.mount('leader-can-deactivate', {
+      leaderCanDeactivate: #{user.leaderCanDeactivate}
+    });

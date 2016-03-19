@@ -23,10 +23,12 @@
     "lodash": "^4.6.1",
     "mongoose": "^4.4.6",
     "morgan": "~1.6.1",
+    "nib": "^1.1.0",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^4.0.0",
     "request-promise": "^2.0.1",
+    "riot": "^2.3.17",
     "semantic-time-converter.js": "^1.0.1",
     "serve-favicon": "~2.3.0",
     "should": "^8.2.2",
@@ -38,6 +40,8 @@
     "chai-as-promised": "^5.2.0",
     "istanbul": "^0.4.2",
     "mockgoose": "^5.3.3",
+    "sinon": "^1.17.3",
+    "sinon-chai": "^2.8.0",
     "supertest": "^1.2.0",
     "supertest-session": "^2.0.1"
   }

@@ -6,10 +6,15 @@ let express  = require('express'),
     router   = express.Router(),
     debug    = require('debug')('autocron:routes/users'),
     h        = require('../test/helpers'),
-    api      = require('../lib/api');
+    api      = require('../lib/api'),
+    config   = require('config');
 
+let testUserId = 'bfea558d-aa49-41e7-8b3e-a3c717907816',
+    testApiKey = '7baa1947-7c06-4f0a-8883-863148cbf34b',
+    realUserId = '041abe75-7ebc-4e11-a32d-9d54f77d74f8',
+    realApiKey = 'f467f90c-3291-4020-b7c0-fc055e0bd826';
 
-router.get('/', loggedIn, api.attachUser(), (req, res) => {
+router.get('/', loggedIn, api.attachUser, (req, res) => {
   res.render('user/show');
 });
 
@@ -17,26 +22,46 @@ router.get('/', loggedIn, api.attachUser(), (req, res) => {
 // /users/login
 router.route('/login')
   .get((req, res) => {
-    res.render('login', {userId: 'bfea558d-aa49-41e7-8b3e-a3c717907816',
-                        apiKey: '7baa1947-7c06-4f0a-8883-863148cbf34b'});
+      res.render('login', {userId: testUserId,
+                          apiKey:  testApiKey});
   })
 
-  .post(passport.authenticate('local',
-                              {successRedirect: '/users/',
-                               failureRedirect: '/users/login',
-                               failureFlash: {type: 'danger'},
-                               successFlash: 'Welcome!'}));
+  .post((req, res) => {
+    let creds = {
+      userId: req.body.userId,
+      apiKey: req.body.apiKey
+    }
+    User.findOne(creds)
+    .then((user) => {
+      if(!user) {
+        return User.register(creds);
+      }
+      return user;
+    })
+    .then((user) => {
+      req.login(user, (err) => {
+        debug(46);
+        flashError(err, req);
+        res.redirect('/users/');
+      });
+    })
+    .catch((err) => {
+      flashError(err, req);
+      return res.redirect('/users/login');
+    })
+  });
 
 
 // /users/register
 router.route('/register')
   .get((req, res) => {
-    res.render('register', {userId: h.uuidGenerator(),
-                  apiKey: h.uuidGenerator()});
+    res.render('register', {userId: realUserId,
+                            apiKey: realApiKey});
   })
 
   .post((req, res) => {
     debug(39);
+    // console.log(config.get('api.url'));
     User.register({userId: req.body.userId,
                   apiKey: req.body.apiKey })
     .then((user) => {
@@ -83,14 +108,36 @@ router.route('/edit')
     });
   })
 
+router.post('/update', loggedIn, (req, res) => {
+  let user = Object.assign(req.user, req.body);
+  user.save()
+  .then((user) => {
+    console.log(user);
+    res.send('ok');
+  })
+  .catch((err) => {
+    console.log(err);
+    res.send('not ok');
+  });
+});
 
 function loggedIn(req, res, next) {
   if (req.user) {
     next();
   } else {
-    req.flash('warning', 'You need to be logged in to do that')
+    // req.flash('warning', 'You need to be logged in to do that')
     res.redirect('/users/login');
   }
+}
+
+function flashError(err, req) {
+  let str = err
+  if(err instanceof Error) {
+    str = err.toString();
+  } else if( typeof err === 'object' ) {
+    str = JSON.stringify(err, null, 2);
+  }
+  return req.flash('danger', str);
 }
 
 module.exports = router;
