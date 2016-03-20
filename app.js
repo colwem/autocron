@@ -54,7 +54,7 @@ if( app.get('env') === 'production' ) {
 }
 if(config.get('session.store') === 'db') {
   sess.store = new MongoDBStore(
-    { uri: config.get('database.url') + 'sessions',
+    { uri: config.get('database.url') + config.get('database.name'),
       collection: 'sessions' });
 }
 app.use(session(sess));
