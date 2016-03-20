@@ -1,0 +1,21 @@
+'use strict';
+
+leader-can-deactivate
+  input(type='checkbox', checked='{ leaderCanDeactivate }', onChange='{ onChange }')
+
+  script.
+    this.leaderCanDeactivate = opts.leaderCanDeactivate;
+
+    let url = '/users/update';
+
+    onChange(e) {
+      $.post(url,
+        {
+          leaderCanDeactivate: e.target.checked
+        },
+        (data, status) => {
+          console.log(data);
+          console.log(status);
+        }
+      );
+    }

@@ -1,0 +1,21 @@
+'use strict';
+
+activated
+  input(type='checkbox', checked='{ activated }', onChange='{ onChange }')
+
+  script.
+    this.activated = opts.activated;
+
+    let url = '/users/update';
+
+    onChange(e) {
+      $.post(url,
+        {
+          activated: e.target.checked
+        },
+        (data, status) => {
+          console.log(data);
+          console.log(status);
+        }
+      );
+    }
