@@ -10,6 +10,8 @@ mockgoose(mongoose);
 let User             = require("../../models/user.js"),
     h                = require("../helpers");
 
+require('../../lib/api').configure(config.get('api.url'));
+
 chai.use(chaiAsPromised);
 let expect = chai.expect;
 
@@ -20,7 +22,9 @@ afterEach(function(done) {
 });
 
 before((done) => {
-  db = mongoose.connect(config.get('database.url') + config.get('database.name'));
+  db = mongoose
+    .connect(config.get('database.url') + config.get('database.name'));
+
   done();
 });
 
@@ -33,6 +37,7 @@ describe('User', function() {
     context('when userId and appKey are found', function() {
       // this.timeout(5000);
       it('creates user', function() {
+
         return expect(User.register({userId: appUserId, apiKey: appApiKey}))
           .to.eventually.be.an.instanceof(User);
       });
@@ -41,16 +46,97 @@ describe('User', function() {
         this.timeout(5000);
         User.register({userId: appUserId,
                       apiKey:  appApiKey})
+
         .then((user) => {
           expect(user.cronTime).to.eql(1);
           done();
         })
+
         .catch(done)
       })
     });
   });
-  describe('#save, #create', () => {
 
+  describe('#save', function() {
+    let testUserData;
+
+    beforeEach(function() {
+      testUserData = {
+        userId: h.uuidGenerator(),
+        apiKey: h.uuidGenerator(),
+        activated: true,
+        leaderCanDeactivate: true
+      };
+    });
+
+    context('setting UTCCronTime', function() {
+      context('with cronTime of 1 and timeZoneOffset of 0', function() {
+        it('sets UTCCronTime to 1', function(done) {
+          testUserData.cronTime = 1;
+          testUserData.timeZoneOffset = 0;
+          let user = new User(testUserData);
+          user.save()
+          .then((user) => {
+            expect(user.timeZone).to.equal(0);
+            expect(user.UTCCronTime).to.equal(1);
+          })
+          .then(() => done(), done);
+
+        });
+      });
+
+      context('with cronTime of 1 and timeZoneOffset of 300', function() {
+        it('sets UTCCronTime to 5', function(done) {
+          testUserData.cronTime = 1;
+          testUserData.timeZoneOffset = 300;
+          let user = new User(testUserData);
+
+          user.save()
+          .then((user) => {
+            expect(user.UTCCronTime).to.equal(6);
+          })
+          .then(() => done(), done);
+        });
+      });
+
+      context('with cronTime of 1 and timeZoneOffset of -300', function() {
+        it('sets UTCCronTime to 19', function(done) {
+          testUserData.cronTime = 1;
+          testUserData.timeZoneOffset = -300;
+          let user = new User(testUserData);
+
+          user.save()
+          .then((user) => {
+            expect(user.timeZone).to.equal(-5);
+            expect(user.UTCCronTime).to.equal(20);
+          })
+          .then(() => done(), done);
+
+        });
+      });
+
+      it("resaving doesn't corrupt the timeZone", function(done) {
+        testUserData.cronTime = 1;
+        testUserData.timeZoneOffset = 600;
+
+        let user = new User(testUserData);
+        user.save()
+        .then((user) => {
+          expect(user.timeZone).to.equal(10);
+
+          user.activated = false;
+
+          return user.save();
+        })
+        .then((user) => {
+          expect(user.timeZone).to.equal(10);
+        })
+        .then(() => done(), done);
+      });
+    });
+  });
+
+  describe('#save, #create', () => {
     it('can be created', () => {
       return expect(User.create({userId: h.uuidGenerator(),
                                 apiKey: h.uuidGenerator()}))

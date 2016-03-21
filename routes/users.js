@@ -108,8 +108,12 @@ router.route('/edit')
     });
   })
 
-router.post('/update', loggedIn, (req, res) => {
+
+router.post('/update', loggedIn, api.attachUser, (req, res) => {
   let user = Object.assign(req.user, req.body);
+
+  user.timeZone = apiUser.preferences.timezoneOffset;
+
   user.save()
   .then((user) => {
     console.log(user);
@@ -138,6 +142,9 @@ function flashError(err, req) {
     str = JSON.stringify(err, null, 2);
   }
   return req.flash('danger', str);
+}
+
+function getTimezone(apiUser) {
 }
 
 module.exports = router;

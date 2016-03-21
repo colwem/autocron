@@ -5,7 +5,8 @@ let mongoose = require('mongoose'),
     ObjectId = Schema.ObjectId,
     api = require('../lib/api');
 
-mongoose.Promise = global.Promise;
+
+mongoose.Promise = require('bluebird');
 
 let matcher = /\S{8}-\S{4}-\S{4}-\S{12}/;
 let userSchema = new Schema({
@@ -29,6 +30,29 @@ let userSchema = new Schema({
     type:Number,
     default: 0,
     min: 0,
+    max: 23,
+    required: true
+  },
+
+  timeZoneOffset: {
+    type: Number,
+    default: 0,
+    min: -12 * 60,
+    max: 12 * 60,
+    required: true
+  },
+
+  timeZone: {
+    type: Number,
+    default: 0,
+    min: -12,
+    max: 12,
+  },
+
+  UTCCronTime: {
+    type:Number,
+    default: 0,
+    min: 0,
     max: 23
   },
 
@@ -41,30 +65,52 @@ let userSchema = new Schema({
     type: Boolean,
     default: true
   }
+}, {
+  strict: 'throw'
+});
+
+userSchema.pre('save', function(next) {
+
+  this.timeZone = timeZoneToHours(this.timeZoneOffset);
+
+  let UTCCronTime = this.timeZone + this.cronTime;
+  UTCCronTime = UTCCronTime < 0 ? 24 + UTCCronTime : UTCCronTime;
+
+  this.UTCCronTime = UTCCronTime;
+  next();
 });
 
 userSchema.statics.register = function(options) {
   let user = new this(options);
-  console.log(38);
+
   return api.getUser({
     userId: user.userId,
     apiKey: user.apiKey
   })
+
   .then((habiticaUser) => {
-    console.log('models/user.js: 54');
-    let dayStart = habiticaUser.obj.preferences.dayStart;
+    habiticaUser = habiticaUser.obj;
+    let dayStart = habiticaUser.preferences.dayStart;
+
     user.cronTime = (dayStart + 1) % 24;
+    user.timeZoneOffset = habiticaUser.preferences.timezoneOffset;
     return user.save();
   })
+
   .catch((err) => {
-    console.log('models/user.js: 60');
     console.log(err);
+
     return Promise.reject(err);
   });
 }
 
 userSchema.methods.validApiKey = function(apiKey) {
+
   return this.apiKey === apiKey;
+}
+
+function timeZoneToHours(timeZoneMinutes) {
+  return Math.round( timeZoneMinutes / 60);
 }
 
 module.exports = mongoose.model('User', userSchema);

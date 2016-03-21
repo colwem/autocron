@@ -255,10 +255,11 @@ describe('Api', function() {
         });
       });
 
-      context('when correctly credentialed', function() {
+      context.only('when correctly credentialed', function() {
         it('returns a user', function(done) {
           Api.getUser(goodUser)
           .then((user) => {
+            console.log(user);
             expect(user).to.exist;
           })
           .then(() => done(), done);
