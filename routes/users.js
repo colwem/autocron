@@ -34,6 +34,7 @@ router.route('/login')
     User.findOne(creds)
     .then((user) => {
       if(!user) {
+        console.log('routes/users.js: 37');
         return User.register(creds);
       }
       return user;
@@ -46,40 +47,13 @@ router.route('/login')
       });
     })
     .catch((err) => {
+      console.log('routes/users.js: 49');
       flashError(err, req);
       return res.redirect('/users/login');
     })
   });
 
 
-// /users/register
-router.route('/register')
-  .get((req, res) => {
-    res.render('register', {userId: realUserId,
-                            apiKey: realApiKey});
-  })
-
-  .post((req, res) => {
-    debug(39);
-    // console.log(config.get('api.url'));
-    User.register({userId: req.body.userId,
-                  apiKey: req.body.apiKey })
-    .then((user) => {
-      debug(43);
-      req.flash('success', 'Successfully registered')
-      req.login(user, (err) => {
-        debug(46);
-        if (err) req.flash('danger', JSON.stringify(err, null, 2))
-        res.redirect('/users/');
-      });
-    })
-    .catch((err) => {
-      debug(52);
-      if( typeof err === "object" ) err = JSON.stringify(err, null, 2);
-      req.flash("danger", err);
-      return res.redirect('register');
-    })
-  });
 
 
 // /users/logout
@@ -88,40 +62,19 @@ router.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
-
-// [GET,POST]/users/edit
-router.route('/edit')
-  .get(loggedIn, (req, res) => {
-    res.render('user/edit');
-  })
-
-  .post(loggedIn, (req, res) => {
-    req.user.cronTime = req.body.cronTime;
-    req.user.save()
-    .then((user) => {
-      req.flash("success", "Edit successful")
-      res.redirect('/users/');
-    })
-    .catch((err) => {
-      req.flash("danger", err)
-      res.redirect('/user/edit')
-    });
-  })
-
-
 router.post('/update', loggedIn, api.attachUser, (req, res) => {
   let user = Object.assign(req.user, req.body);
 
-  user.timeZone = apiUser.preferences.timezoneOffset;
+  user.timeZoneOffset = req.apiUser.preferences.timezoneOffset;
 
-  user.save()
+  return user.save()
   .then((user) => {
     console.log(user);
-    res.send('ok');
+    return res.send('ok');
   })
   .catch((err) => {
     console.log(err);
-    res.send('not ok');
+    return res.send('not ok');
   });
 });
 

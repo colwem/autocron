@@ -15,25 +15,27 @@ let helpers   = require('../helpers'),
 let expect = chai.expect;
 
 let userId = h.testUserId,
-    apiKey = h.testApiKey;
+    apiKey = h.testApiKey,
+    badUserId = h.uuidGenerator(),
+    badApiKey = h.uuidGenerator();
 
 describe('User routes', function() {
   this.timeout(3000);
   describe('GET /users/login', function() {
 
-    beforeEach(function(done) {
-      request(app)
-        .post('/users/register')
-        .send({userId: userId, apiKey: apiKey})
-        .expect(302)
-        .end((err, res) => {
-          if (err) return done(err);
-          expect(err).to.equal(null);
-          expect(res.header.location).to.not.include('register');
-          // expect(res.body.success).to.equal(true);
-          done();
-        });
-    });
+    // beforeEach(function(done) {
+    //   request(app)
+    //     .post('/users/login')
+    //     .send({userId: userId, apiKey: apiKey})
+    //     .expect(302)
+    //     .end((err, res) => {
+    //       if (err) return done(err);
+    //       expect(err).to.equal(null);
+    //       expect(res.header.location).to.not.include('login');
+    //       // expect(res.body.success).to.equal(true);
+    //       done();
+    //     });
+    // });
 
     it('gets login page', function(done){
       request(app)
@@ -80,8 +82,9 @@ describe('User routes', function() {
       });
     });
   });
-  describe('POST /users/login', function() {
-    context("when userId or Api Token don't match", function() {
+
+  describe.only('POST /users/login', function() {
+    context("when userId or Api Token aren't valid", function() {
       this.timeout(5000)
       it('redirects to /users/login', function(done) {
         request(app)
@@ -125,61 +128,67 @@ describe('User routes', function() {
       });
     });
 
-    context('when userId and Api Token are found', function() {
-      beforeEach(function(done) {
-        request(app)
-          .post('/users/register')
-          .send({userId: userId, apiKey: apiKey})
-          .expect(302)
-          .end((err, res) => {
-            if (err) return done(err);
-            expect(err).to.equal(null);
-            expect(res.header.location).to.not.include('register');
-            // expect(res.body.success).to.equal(true);
-            done();
-          });
-      });
-      it('redirects to /users/', function(done) {
-        request(app)
-          .post('/users/login')
-          .send({userId: userId, apiKey: userId})
-          .expect(302)
-          .end((err, res) => {
-            if (err) return done(err);
-            expect(err).to.equal(null);
-            expect(res.header.location).to.include('login');
-            // expect(res.body.success).to.equal(true);
-            done();
-          });
-      });
-    });
-  });
-  describe('POST /users/register', function() {
+    context('when userId and Api Token valid', function() {
+      context("when they don't exist in api", function() {
+        it('redirects', function(done) {
+          request(app)
+            .post('/users/login')
+            .send({userId: badUserId, apiKey: badApiKey})
+            .expect(302)
+            .end((err, res) => {
+              if (err) return done(err);
 
-    afterEach(function(done) {
-      mockgoose.reset(() => {
-        done();
-      });
-    });
+              expect(err).to.equal(null);
+              expect(res.header.location).to.include('login');
 
-    it('should create a user', function(done) {
-      let userId = h.testUserId;
-      let apiKey = h.testApiKey;
-
-      request(app)
-        .post('/users/register')
-        .send({userId: userId, apiKey: apiKey})
-        .expect(302)
-        .end((err, res) => {
-          if (err) return done(err);
-          expect(err).to.equal(null);
-          expect(res.header.location).to.not.include('register');
-          // expect(res.body.success).to.equal(true);
-          done();
+              done();
+            });
         });
+
+        it('errors', function(done) {
+          let testSession = session(app);
+          testSession
+            .post('/users/login')
+            .send({userId: badUserId, apiKey: badApiKey})
+            .expect(302)
+            .end((err, res) => {
+              if (err) return done(err);
+
+              expect(err).to.equal(null);
+              expect(res.header.location).to.include('login');
+
+              testSession
+                .get(res.header.location)
+                .expect(200)
+                .end((err, res) => {
+                  if (err) {
+                    return done(err);
+                  }
+
+                  expect(res.text).to.include('danger');
+                  done();
+                });
+            });
+        });
+      });
+
+      context('when they exist in api', function() {
+        it('redirects to /users/', function(done) {
+          request(app)
+            .post('/users/login')
+            .send({userId: userId, apiKey: userId})
+            .expect(302)
+            .end((err, res) => {
+              if (err) return done(err);
+              expect(err).to.equal(null);
+              expect(res.header.location).to.not.include('login');
+              // expect(res.body.success).to.equal(true);
+              done();
+            });
+        });
+      });
     });
   });
-
 
   describe('GET /users/', function() {
     let testSession,
@@ -231,111 +240,6 @@ describe('User routes', function() {
   });
 
 
-  describe('GET /users/edit', function() {
-    let testSession,
-        userId = h.testUserId,
-        apiKey = h.testApiKey;
-
-    context('when in a login session', function() {
-
-      beforeEach(function(done) {
-        testSession = session(app)
-        testSession
-          .post('/users/register')
-          .send({userId: userId, apiKey: apiKey})
-          .expect(302)
-          .end(done);
-      });
-
-      it('should get edit page', function(done) {
-        testSession
-          .get('/users/edit')
-          .expect(200)
-          .end((err, res) => {
-            expect(res.text).to.include('form');
-            expect(res.text).to.include('cronTime');
-            done()
-          });
-      });
-
-      afterEach(function(done) {
-        mockgoose.reset(() => {
-          done();
-        });
-      });
-
-    });
-
-    context('when not a login session', function() {
-      it('should redirect to /users/login', function(done) {
-        request(app)
-          .get('/users/edit')
-          .expect(302)
-          .end((err, res) => {
-            if (err) return done(err);
-            expect(res.header.location).to.include('users/login');
-            done();
-          });
-      });
-    });
-  });
-
-  describe('POST /users/edit', function() {
-    let testSession,
-        userId = h.testUserId,
-        apiKey = h.testApiKey;
-
-    context('when in a login session', function() {
-
-      beforeEach(function(done) {
-        testSession = session(app)
-        testSession
-          .post('/users/register')
-          .send({userId: userId, apiKey: apiKey})
-          .expect(302)
-          .end(done);
-      });
-
-      it('should save cronTime', function(done) {
-        let cronTime = 4;
-        testSession
-          .post('/users/edit')
-          .send({cronTime: cronTime})
-          .expect(302)
-          .end((err, res) => {
-            testSession
-              .get(res.header.location)
-              .expect(200)
-              .end((err, res) => {
-                expect(res.text).to.include(`${cronTime}`);
-                done();
-              });
-          });
-      });
-
-      afterEach(function(done) {
-        mockgoose.reset(() => {
-          done();
-        });
-      });
-
-    });
-
-    context('when not a login session', function() {
-      it('should redirect to /users/login', function(done) {
-        let cronTime = 4;
-        request(app)
-          .post('/users/edit')
-          .send({cronTime: cronTime})
-          .expect(302)
-          .end((err, res) => {
-            if (err) return done(err);
-            expect(res.header.location).to.include('users/login');
-            done();
-          });
-      });
-    });
-  });
 
   after(function(done) {
     mockgoose.reset(() => {

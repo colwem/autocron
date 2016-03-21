@@ -6,7 +6,9 @@ let mongoose = require('mongoose'),
     api = require('../lib/api');
 
 
-mongoose.Promise = require('bluebird');
+// When I trie to use bluebird I get this warning about
+// handler not returning a promise.
+mongoose.Promise = global.Promise;
 
 let matcher = /\S{8}-\S{4}-\S{4}-\S{12}/;
 let userSchema = new Schema({
@@ -94,7 +96,10 @@ userSchema.statics.register = function(options) {
 
     user.cronTime = (dayStart + 1) % 24;
     user.timeZoneOffset = habiticaUser.preferences.timezoneOffset;
-    return user.save();
+    return user.save().then((user) => {
+      console.log(user);
+      return user;
+    });
   })
 
   .catch((err) => {
