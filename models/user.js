@@ -85,17 +85,20 @@ userSchema.pre('save', function(next) {
 userSchema.statics.register = function(options) {
   let user = new this(options);
 
+  console.log('models/user.js: 88');
   return api.getUser({
     userId: user.userId,
     apiKey: user.apiKey
   })
 
   .then((habiticaUser) => {
+    console.log('models/user.js: 95');
     habiticaUser = habiticaUser.obj;
     let dayStart = habiticaUser.preferences.dayStart;
 
     user.cronTime = (dayStart + 1) % 24;
     user.timeZoneOffset = habiticaUser.preferences.timezoneOffset;
+    console.log('models/user.js: 101');
     return user.save().then((user) => {
       console.log(user);
       return user;
@@ -103,6 +106,7 @@ userSchema.statics.register = function(options) {
   })
 
   .catch((err) => {
+    console.log('models/user.js: 108');
     console.log(err);
 
     return Promise.reject(err);

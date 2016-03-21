@@ -40,14 +40,15 @@ router.route('/login')
       return user;
     })
     .then((user) => {
+      console.log('routes/users.js: 43');
       req.login(user, (err) => {
-        debug(46);
+        console.log('routes/users.js: 45');
         flashError(err, req);
         res.redirect('/users/');
       });
     })
     .catch((err) => {
-      console.log('routes/users.js: 49');
+      console.log('routes/users.js: 50');
       flashError(err, req);
       return res.redirect('/users/login');
     })
