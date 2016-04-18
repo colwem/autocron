@@ -35,6 +35,18 @@ const badUrl = config.get('api.url').replace('api', 'ai');
 describe('Api', function() {
   this.timeout(5000);
 
+  describe('#getConnection', function() {
+
+    context('when goodUrl', function() {
+
+      it('returns ApiConnection', function() {
+        let connection = Api.getConnection(goodUrl);
+        expect(connection).to.be.ok;
+      });
+
+    });
+
+  });
   describe('#constructor', function() {
     it('has a definitionUrl', function() {
       expect(Api.definitionUrl).to.exist;
@@ -220,18 +232,17 @@ describe('Api', function() {
     });
   });
 
-  describe('#getUser', function() {
-
-    beforeEach(function() {
-      Api.reset();
-    });
+  describe.only('#getUser', function() {
+    let connection;
 
     context('when improperly connected', function() {
+
       beforeEach(function() {
-        Api.configure(badUrl);
+        connection = Api.getConnection(badUrl, true);
       });
+
       it("it gets the Can't read swagger error", function(done) {
-        Api.getUser(goodUser)
+        connection.getUser(goodUser.userId, goodUser.apiKey)
         .catch((err) => {
           expect(err).to.be.an.instanceof(Error);
           expect(err.toString()).to.include("Can't read swagger JSON");
@@ -241,23 +252,25 @@ describe('Api', function() {
     });
 
     context('when properly connected', function() {
+
       beforeEach(function() {
-        Api.configure(goodUrl);
+        connection = Api.getConnection(goodUrl, true);
       });
+
       context('when incorrectly credentialed', function() {
         it('rejects with Could not find user error', function(done) {
-          Api.getUser(badUser)
-          .catch((err) => {
-            expect(err).to.be.an.instanceof(Error);
-            expect(err.toString()).to.include('Could not find a Habitica user that');
-          })
-          .then(() => done(), done);
+          connection.getUser(badUser.userId, badUser.apiKey)
+            .catch((err) => {
+              expect(err).to.be.an.instanceof(Error);
+              expect(err.toString()).to.include('Could not find a Habitica user that');
+            })
+            .then(() => done(), done);
         });
       });
 
-      context.only('when correctly credentialed', function() {
+      context('when correctly credentialed', function() {
         it('returns a user', function(done) {
-          Api.getUser(goodUser)
+          connection.getUser(goodUser.userId, goodUser.apiKey)
           .then((user) => {
             console.log(user);
             expect(user).to.exist;

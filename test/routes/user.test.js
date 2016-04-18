@@ -4,10 +4,11 @@
 
 let chai      = require('chai'),
     session   = require('supertest-session'),
-    request   = require('supertest'),
-    mongoose  = require('mongoose'),
-    mockgoose = require('mockgoose');
-mockgoose(mongoose);
+    request   = require('supertest');
+    // mongoose  = require('mongoose'),
+    // mockgoose = require('mockgoose');
+// mockgoose(mongoose);
+
 let helpers   = require('../helpers'),
     app       = require('../../app'),
     h         = require('../helpers');

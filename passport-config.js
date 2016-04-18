@@ -11,26 +11,20 @@ passport.use(new LocalStrategy({
     passwordField: 'apiKey'
   },
   (userId, apiKey, done) => {
-    debug(14);
     User.findOne({ userId: userId })
     .then((user) => {
-      debug(17);
       if (!user) {
-        debug(19);
         return done(
           null,
           false,
           { message: 'User Id does not exist or has not been registered' });
       }
       if (!user.validApiKey(apiKey)) {
-        debug(26);
         return done(null, false, { message: 'Incorrect Api Token' });
       }
-      debug(29);
       return done(null, user);
     })
     .catch((err) => {
-      debug(29);
       return done(err);
     });
   }

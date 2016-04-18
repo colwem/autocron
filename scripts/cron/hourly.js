@@ -2,24 +2,27 @@
 
 'use strict';
 
+const config   = require('config'),
+      mongoose = require('mongoose'),
+      debug    = require('debug')('autocron:scripts/cron/hourly'),
+      Promise  = require('bluebird');
 
-const config = require('config'),
-      mongoose     = require('mongoose'),
-      debug = require('debug')('autocron:scripts/cron/hourly'),
-      Promise = require('bluebird');
-
+debug('NODE_ENV: ' + process.env.NODE_ENV);
 let uri = config.get('database.url') + config.get('database.name');
+debug('uri: ' + uri);
+const apiConnection =
+  require('../../lib/api')
+    .getConnection(config.get('api.url'));
 
-const api = require('../../lib/api');
-api.configure(config.get('api.url'));
+debug('api url: ' + config.get('api.url'));
 
 let hour = (new Date()).getUTCHours();
 debug('starting: at UTC ' + hour);
 
 function getConnection(connectionString) {
   return Promise.try(() => {
-    return mongoose.connect(uri);
     debug('created mongoose connection');
+    return mongoose.connect(uri);
   })
   .disposer(() => {
     mongoose.disconnect();
@@ -30,20 +33,22 @@ function getConnection(connectionString) {
 Promise.using(getConnection(uri), (connection) => {
   const User = require('../../models/user');
   debug('finding users');
-  return User.find({UTCCronTime: hour});
+  return User.find({UTCCronTime: 14});
 })
 .each((user) => {
   debug('found user ' + user.id);
-  let promise = api.getUser(user);
+  debug('id: ' + user.userId);
+  let promise = apiConnection.getUser(user);
 
   return promise
-  .then((user) => {
-    return debug('made api call');
-  })
-  .catch((err) => {
-    debug('api call failed');
-    return debug(err);
-  });
+    .then((user) => {
+      debug('made api call');
+      return user;
+    })
+    .catch((err) => {
+      debug('api call failed');
+      return debug(err);
+    });
 })
 .catch((err) => {
   return debug(err);
