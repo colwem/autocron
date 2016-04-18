@@ -1,1 +1,0 @@
-../../../scripts/cron/hourly.js
