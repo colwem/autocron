@@ -21,8 +21,8 @@ router.get('/', loggedIn, api.attachUser, (req, res) => {
 // /users/login
 router.route('/login')
   .get((req, res) => {
-      res.render('login', {userId: testUserId,
-                          apiKey:  testApiKey});
+      res.render('login', {userId: null,
+                          apiKey:  null});
   })
 
   .post((req, res) => {

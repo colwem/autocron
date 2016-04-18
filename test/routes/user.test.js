@@ -170,23 +170,22 @@ describe('User routes', function() {
 
     context('when in a login session', function() {
 
-      beforeEach(function(done) {
+      it('should get user page', function(done) {
+        this.timeout(5000);
         testSession = session(app)
         testSession
           .post('/users/login')
           .send({userId: userId, apiKey: apiKey})
           .expect(302)
-          .end(done);
-      });
-
-
-      it('should get user page', function(done) {
-        testSession
-          .get('/users/')
-          .expect(200)
-          .end(function(err, res) {
-            expect(res.text).to.include(userId);
-            done()
+          .end((err, res) => {
+            if(err) return done(err);
+            testSession
+              .get('/users/')
+              .expect(200)
+              .end(function(err, res) {
+                expect(res.text).to.include(userId);
+                done()
+              });
           });
       });
 
