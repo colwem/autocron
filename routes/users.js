@@ -5,9 +5,8 @@ let express  = require('express'),
     User     = require('../models/user.js'),
     router   = express.Router(),
     debug    = require('debug')('autocron:routes/users'),
-    h        = require('../test/helpers'),
-    api      = require('../lib/api'),
-    config   = require('config');
+    config   = require('config'),
+    api      = require('../lib/api').getConnection(config.get('api.url'));
 
 let testUserId = 'bfea558d-aa49-41e7-8b3e-a3c717907816',
     testApiKey = '7baa1947-7c06-4f0a-8883-863148cbf34b',
@@ -34,22 +33,22 @@ router.route('/login')
     User.findOne(creds)
     .then((user) => {
       if(!user) {
-        console.log('routes/users.js: 37');
+
         return User.register(creds);
       }
       return user;
     })
     .then((user) => {
-      console.log('routes/users.js: 43');
       req.login(user, (err) => {
-        console.log('routes/users.js: 45');
         flashError(err, req);
+
         res.redirect('/users/');
       });
     })
     .catch((err) => {
-      console.log('routes/users.js: 50');
+      debug(err.stack);
       flashError(err, req);
+
       return res.redirect('/users/login');
     })
   });
@@ -70,11 +69,11 @@ router.post('/update', loggedIn, api.attachUser, (req, res) => {
 
   return user.save()
   .then((user) => {
-    console.log(user);
+
     return res.send('ok');
   })
   .catch((err) => {
-    console.log(err);
+    debug(err.stack);
     return res.send('not ok');
   });
 });

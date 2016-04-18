@@ -3,7 +3,8 @@
 let mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     ObjectId = Schema.ObjectId,
-    api = require('../lib/api');
+    config = require('config'),
+    api = require('../lib/api').getConnection(config.get('api.url'));
 
 
 // When I trie to use bluebird I get this warning about
@@ -85,31 +86,24 @@ userSchema.pre('save', function(next) {
 userSchema.statics.register = function(options) {
   let user = new this(options);
 
-  console.log('models/user.js: 88');
   return api.getUser({
     userId: user.userId,
     apiKey: user.apiKey
   })
 
   .then((habiticaUser) => {
-    console.log('models/user.js: 95');
-    habiticaUser = habiticaUser.obj;
+    habiticaUser = habiticaUser;
     let dayStart = habiticaUser.preferences.dayStart;
 
     user.cronTime = (dayStart + 1) % 24;
     user.timeZoneOffset = habiticaUser.preferences.timezoneOffset;
-    console.log('models/user.js: 101');
-    return user.save().then((user) => {
-      console.log(user);
-      return user;
-    });
+
+    return user.save();
   })
 
   .catch((err) => {
-    console.log('models/user.js: 108');
-    console.log(err);
 
-    return Promise.reject(err);
+    throw err;
   });
 }
 

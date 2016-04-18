@@ -3,30 +3,19 @@
 let chai             = require('chai'),
     chaiAsPromised   = require('chai-as-promised'),
     mongoose         = require('mongoose'),
-    mockgoose        = require('mockgoose'),
+    // mockgoose        = require('mockgoose'),
     config           = require('config');
-mockgoose(mongoose);
+// mockgoose(mongoose);
 
 let User             = require("../../models/user.js"),
     h                = require("../helpers");
 
-require('../../lib/api').configure(config.get('api.url'));
 
 chai.use(chaiAsPromised);
 let expect = chai.expect;
 
 let db;
 
-afterEach(function(done) {
-  mockgoose.reset(done);
-});
-
-before((done) => {
-  db = mongoose
-    .connect(config.get('database.url') + config.get('database.name'));
-
-  done();
-});
 
 describe('User', function() {
 

@@ -95,8 +95,7 @@ app.use( (req, res, next) =>{
   res.locals.user = req.user;
   next();
 });
-console.log(config.get('api.url'));
-require('./lib/api').configure(config.get('api.url'));
+
 // routers setup
 app.use('/', routes);
 app.use('/users?', users);

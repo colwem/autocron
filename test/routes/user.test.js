@@ -4,13 +4,12 @@
 
 let chai      = require('chai'),
     session   = require('supertest-session'),
-    request   = require('supertest');
-    // mongoose  = require('mongoose'),
+    request   = require('supertest'),
+    mongoose  = require('mongoose');
     // mockgoose = require('mockgoose');
 // mockgoose(mongoose);
 
-let helpers   = require('../helpers'),
-    app       = require('../../app'),
+let app       = require('../../app'),
     h         = require('../helpers');
 
 let expect = chai.expect;
@@ -23,20 +22,6 @@ let userId = h.testUserId,
 describe('User routes', function() {
   this.timeout(3000);
   describe('GET /users/login', function() {
-
-    // beforeEach(function(done) {
-    //   request(app)
-    //     .post('/users/login')
-    //     .send({userId: userId, apiKey: apiKey})
-    //     .expect(302)
-    //     .end((err, res) => {
-    //       if (err) return done(err);
-    //       expect(err).to.equal(null);
-    //       expect(res.header.location).to.not.include('login');
-    //       // expect(res.body.success).to.equal(true);
-    //       done();
-    //     });
-    // });
 
     it('gets login page', function(done){
       request(app)
@@ -51,41 +36,32 @@ describe('User routes', function() {
     });
 
     context('when login fails', function() {
-      let testSession;
-      before(function(done)  {
-        testSession = session(app)
+
+      it('displays error', function(done) {
+        let testSession = session(app);
+
         testSession
           .post('/users/login')
           .send({userId: 'blah', apiKey: 'blam'})
-          .end(done)
-      });
-
-      it('displays error', function(done) {
-        testSession
-          .get('/users/login')
-          .expect(200)
-          .end((err, res) => {
-            expect(res.text).to.include('danger');
-            done();
+          .end(() => {
+            testSession
+              .get('/users/login')
+              .expect(200)
+              .end((err, res) => {
+                expect(res.text).to.include('danger');
+                done();
+              });
           });
       });
 
-      afterEach(function(done) {
-        mockgoose.reset(() => {
-          done();
-        });
-      });
     });
 
-    afterEach(function(done) {
-      mockgoose.reset(() => {
-        done();
-      });
-    });
   });
 
-  describe.only('POST /users/login', function() {
+  describe('POST /users/login', function() {
+
     context("when userId or Api Token aren't valid", function() {
+
       this.timeout(5000)
       it('redirects to /users/login', function(done) {
         request(app)
@@ -122,11 +98,7 @@ describe('User routes', function() {
           });
       });
 
-      afterEach(function(done) {
-        mockgoose.reset(() => {
-          done();
-        });
-      });
+
     });
 
     context('when userId and Api Token valid', function() {
@@ -177,7 +149,7 @@ describe('User routes', function() {
         it('redirects to /users/', function(done) {
           request(app)
             .post('/users/login')
-            .send({userId: userId, apiKey: userId})
+            .send({userId: userId, apiKey: apiKey})
             .expect(302)
             .end((err, res) => {
               if (err) return done(err);
@@ -201,7 +173,7 @@ describe('User routes', function() {
       beforeEach(function(done) {
         testSession = session(app)
         testSession
-          .post('/users/register')
+          .post('/users/login')
           .send({userId: userId, apiKey: apiKey})
           .expect(302)
           .end(done);
@@ -218,11 +190,6 @@ describe('User routes', function() {
           });
       });
 
-      afterEach(function(done) {
-        mockgoose.reset(() => {
-          done();
-        });
-      });
 
     });
 
@@ -241,11 +208,10 @@ describe('User routes', function() {
   });
 
 
-
-  after(function(done) {
-    mockgoose.reset(() => {
-      done();
-    });
-  });
+  // afterEach(function(done) {
+    // mockgoose.reset(() => {
+      // done();
+    // });
+  // });
 
 });
