@@ -33,7 +33,7 @@ function getConnection(connectionString) {
 Promise.using(getConnection(uri), (connection) => {
   const User = require('../../models/user');
   debug('finding users');
-  return User.find({UTCCronTime: 14});
+  return User.find({UTCCronTime: hour});
 })
 .each((user) => {
   debug('found user ' + user.id);
@@ -51,6 +51,6 @@ Promise.using(getConnection(uri), (connection) => {
     });
 })
 .catch((err) => {
-  return debug(err);
+  return debug(err.stack);
 });
 
