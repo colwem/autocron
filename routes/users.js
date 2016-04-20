@@ -6,7 +6,7 @@ let express  = require('express'),
     router   = express.Router(),
     debug    = require('debug')('autocron:routes/users'),
     config   = require('config'),
-    api      = require('../lib/api').getConnection(config.get('api.url'));
+    api      = require('@colwem/habitica-api-client').getConnection(config.get('api.url'));
 
 let testUserId = 'bfea558d-aa49-41e7-8b3e-a3c717907816',
     testApiKey = '7baa1947-7c06-4f0a-8883-863148cbf34b',

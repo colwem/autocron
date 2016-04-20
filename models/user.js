@@ -4,7 +4,7 @@ let mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     ObjectId = Schema.ObjectId,
     config = require('config'),
-    api = require('../lib/api').getConnection(config.get('api.url'));
+    api = require('@colwem/habitica-api-client').getConnection(config.get('api.url'));
 
 
 // When I trie to use bluebird I get this warning about

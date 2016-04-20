@@ -11,7 +11,7 @@ debug('NODE_ENV: ' + process.env.NODE_ENV);
 let uri = config.get('database.url') + config.get('database.name');
 debug('uri: ' + uri);
 const apiConnection =
-  require('../../lib/api')
+  require('@colwem/habitica-api-client')
     .getConnection(config.get('api.url'));
 
 debug('api url: ' + config.get('api.url'));
